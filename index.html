@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>Untitled</title>
+  
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orçamento Interativo - Contabilidade Barreto</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Harmony (Background: #FDFBF8, Text: #3D405B, Accent: #81B29A) -->
+    <!-- Application Structure Plan: A single-page, top-down professional quote layout. The structure is designed for clarity and action, starting with company info, detailing the service and costs with an interactive chart, clarifying payment terms with selectable options, and ending with clear call-to-action buttons. This transforms a static document into a user-friendly, interactive proposal, enhancing professionalism. -->
+    <!-- Visualization & Content Choices: 1. Cost Breakdown -> Goal: Compare proportions -> Viz: Donut Chart -> Interaction: Hover tooltips -> Justification: Provides a quick visual understanding of cost components, more engaging than a table alone. -> Library: Chart.js/Canvas. 2. Payment Terms -> Goal: Clarify/Engage -> Presentation: Interactive Buttons -> Interaction: Click to update descriptive text -> Justification: Resolves ambiguity in the source text and empowers the user to select their preferred option. -> Method: Vanilla JS DOM manipulation. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FDFBF8;
+            color: #3D405B;
+        }
+        .accent-bg { background-color: #81B29A; }
+        .accent-text { color: #81B29A; }
+        .accent-border { border-color: #81B29A; }
+        .secondary-bg { background-color: #F4F1DE; }
+        .card {
+            background-color: #FFFFFF;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -4px rgba(0, 0, 0, 0.07);
+        }
+        .btn {
+            border-radius: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.2s ease-in-out;
+            text-align: center;
+        }
+        .btn-primary {
+            background-color: #81B29A;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #6a947d;
+        }
+        .btn-secondary {
+            background-color: transparent;
+            color: #3D405B;
+            border: 1px solid #E0DACC;
+        }
+        .btn-secondary:hover {
+            background-color: #F4F1DE;
+            border-color: #C6C0AD;
+        }
+        .payment-option {
+            border: 2px solid #E0DACC;
+            cursor: pointer;
+        }
+        .payment-option.selected {
+            border-color: #81B29A;
+            background-color: #f0f7f4;
+        }
+        .chart-container {
+            position: relative;
+            height: 250px;
+            width: 100%;
+            max-width: 250px;
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mx-auto max-w-4xl p-4 sm:p-6 md:p-8">
+
+        <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">Contabilidade Barreto</h1>
+                <p class="text-gray-500">São Paulo | contato@contabilidadebarreto.com.br</p>
+            </div>
+            <div class="text-left sm:text-right mt-4 sm:mt-0">
+                <h2 class="text-2xl font-semibold accent-text">Orçamento</h2>
+                <p class="text-sm text-gray-500">Nº: NR7178475125658088</p>
+                <p id="currentDate" class="text-sm text-gray-500"></p>
+            </div>
+        </header>
+
+        <main>
+            <section id="serviceDetails" class="card p-6 mb-8">
+                <h3 class="text-xl font-bold mb-4">Emissão de DECORE (Declaração Comprobatória de Percepção de Rendimentos)</h3>
+                <p class="text-gray-600 mb-6">Este orçamento detalha os serviços para a emissão da DECORE (modelo AL29), seguindo as normas do Conselho Federal de Contabilidade (CFC). A seguir, apresentamos o escopo do nosso trabalho e a composição dos valores.</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="font-semibold text-lg mb-3">Serviços Inclusos:</h4>
+                        <ul class="space-y-3 text-gray-700">
+                            <li class="flex items-center"><span class="accent-text text-xl mr-3">✔</span> Análise da documentação comprobatória.</li>
+                            <li class="flex items-center"><span class="accent-text text-xl mr-3">✔</span> Emissão via sistema do CRC.</li>
+                            <li class="flex items-center"><span class="accent-text text-xl mr-3">✔</span> Assinatura por profissional habilitado.</li>
+                            <li class="flex items-center"><span class="accent-text text-xl mr-3">✔</span> Entrega em formato digital seguro.</li>
+                        </ul>
+                    </div>
+                    <div class="secondary-bg p-4 rounded-lg">
+                         <h4 class="font-semibold text-lg mb-3">Composição de Custos:</h4>
+                         <p class="text-sm text-gray-600 mb-4">O valor total é dividido entre os honorários pelo serviço prestado e as taxas administrativas. O gráfico ao lado ilustra essa proporção.</p>
+                         <div class="chart-container">
+                            <canvas id="costsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="costs" class="card p-6 mb-8">
+                <h3 class="text-xl font-bold mb-4">Detalhamento dos Valores</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="border-b-2 border-gray-200">
+                                <th class="py-2 px-4 font-semibold">Item</th>
+                                <th class="py-2 px-4 font-semibold">Descrição</th>
+                                <th class="py-2 px-4 font-semibold text-right">Valor</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b border-gray-100">
+                                <td class="py-3 px-4">1</td>
+                                <td class="py-3 px-4">Honorários - Emissão de DECORE</td>
+                                <td class="py-3 px-4 text-right">R$ 978,23</td>
+                            </tr>
+                            <tr class="border-b border-gray-100">
+                                <td class="py-3 px-4">2</td>
+                                <td class="py-3 px-4">Taxas Administrativas*</td>
+                                <td class="py-3 px-4 text-right">R$ 335,23</td>
+                            </tr>
+                            <tr class="font-bold">
+                                <td colspan="2" class="py-4 px-4 text-right text-lg">Total Geral</td>
+                                <td class="py-4 px-4 text-right text-lg accent-text">R$ 1.313,46</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="text-xs text-gray-500 mt-2 text-right">*Custos de emissão junto ao CRC e processamento.</p>
+            </section>
+
+            <section id="payment" class="card p-6 mb-8">
+                <h3 class="text-xl font-bold mb-4">Condições de Pagamento</h3>
+                <p class="text-gray-600 mb-4">Selecione uma das opções abaixo. O pagamento é realizado via PIX.</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                    <div id="option-vista" class="payment-option p-4 rounded-lg selected" onclick="selectPayment('vista')">
+                        <p class="font-semibold">À Vista</p>
+                        <p class="text-sm text-gray-600">Pagamento integral do valor.</p>
+                    </div>
+                    <div id="option-parcelado" class="payment-option p-4 rounded-lg" onclick="selectPayment('parcelado')">
+                        <p class="font-semibold">50/50</p>
+                        <p class="text-sm text-gray-600">50% na contratação, 50% na entrega.</p>
+                    </div>
+                </div>
+                <div id="payment-details" class="secondary-bg p-4 rounded-lg text-sm text-gray-700">
+                    <p><strong>Opção selecionada: À Vista.</strong> O valor total de R$ 1.313,46 deve ser pago para iniciar os serviços. A chave PIX será enviada após a aprovação do orçamento.</p>
+                </div>
+            </section>
+        </main>
+        
+        <footer class="text-center mt-8">
+            <p class="text-sm text-gray-600 mb-4">Este orçamento é válido por 30 dias. Para prosseguir, clique em "Aprovar Orçamento".</p>
+            <div class="flex flex-col sm:flex-row justify-center items-center gap-4">
+                 <button class="btn btn-secondary w-full sm:w-auto" onclick="openPdfModal()">
+                    Baixar PDF
+                </button>
+                 <button class="btn btn-secondary w-full sm:w-auto" onclick="downloadJPG()">
+                    Baixar JPG
+                </button>
+                <button class="btn btn-primary w-full sm:w-auto" onclick="approveQuote()">
+                    Aprovar Orçamento
+                </button>
+            </div>
+            <p class="text-xs text-gray-400 mt-8">Este documento é uma estimativa. Serviços adicionais gerarão um novo orçamento.</p>
+        </footer>
+    </div>
+    
+    <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl p-8 max-w-sm text-center">
+            <h4 class="font-bold text-xl mb-2">Orçamento Aprovado!</h4>
+            <p class="text-gray-600 mb-6">Obrigado! Em breve, um de nossos especialistas entrará em contato com as instruções para pagamento e próximos passos.</p>
+            <button class="btn btn-primary" onclick="closeModal('modal')">Entendido</button>
+        </div>
+    </div>
+    
+    <div id="pdfModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl p-8 max-w-sm text-center">
+            <h4 class="font-bold text-xl mb-2">Baixar Orçamento</h4>
+            <p class="text-gray-600 mb-6">Para salvar o orçamento em PDF, use a função de impressão do seu navegador. Uma janela de impressão irá se abrir, onde você pode escolher a opção "Salvar como PDF".</p>
+            <button class="btn btn-primary" onclick="closeModal('pdfModal'); window.print();">Prosseguir</button>
+        </div>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const today = new Date();
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').textContent = `Data: ${today.toLocaleDateString('pt-BR', options)}`;
+
+            const data = {
+                labels: ['Honorários', 'Taxas'],
+                datasets: [{
+                    label: 'Composição de Custos',
+                    data: [978.23, 335.23],
+                    backgroundColor: [
+                        '#81B29A',
+                        '#F4F1DE'
+                    ],
+                    borderColor: [
+                        '#FFFFFF',
+                        '#FFFFFF'
+                    ],
+                    borderWidth: 2,
+                    hoverOffset: 4
+                }]
+            };
+
+            const config = {
+                type: 'doughnut',
+                data: data,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed !== null) {
+                                        label += new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(context.parsed);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+            
+            const ctx = document.getElementById('costsChart').getContext('2d');
+            new Chart(ctx, config);
+        });
+
+        function selectPayment(option) {
+            const detailsEl = document.getElementById('payment-details');
+            const optionVista = document.getElementById('option-vista');
+            const optionParcelado = document.getElementById('option-parcelado');
+
+            optionVista.classList.remove('selected');
+            optionParcelado.classList.remove('selected');
+            
+            if (option === 'vista') {
+                optionVista.classList.add('selected');
+                detailsEl.innerHTML = `<p><strong>Opção selecionada: À Vista.</strong> O valor total de R$ 1.313,46 deve ser pago para iniciar os serviços. A chave PIX será enviada após a aprovação do orçamento.</p>`;
+            } else {
+                optionParcelado.classList.add('selected');
+                const half = (1313.46 / 2).toFixed(2).replace('.', ',');
+                detailsEl.innerHTML = `<p><strong>Opção selecionada: 50/50.</strong> Será cobrado um sinal de R$ ${half} na aprovação e o valor restante de R$ ${half} na entrega do documento. A chave PIX será enviada para cada etapa.</p>`;
+            }
+        }
+
+        function approveQuote() {
+            document.getElementById('modal').classList.remove('hidden');
+            document.getElementById('modal').classList.add('flex');
+        }
+
+        function openPdfModal() {
+            document.getElementById('pdfModal').classList.remove('hidden');
+            document.getElementById('pdfModal').classList.add('flex');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+            document.getElementById(id).classList.remove('flex');
+        }
+
+        function downloadJPG() {
+            html2canvas(document.body).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'orcamento_contabilidade_barreto.jpg';
+                link.href = canvas.toDataURL('image/jpeg');
+                link.click();
+            });
+        }
+    </script>
+</body>
+</html>
+<!-- partial -->
+  
+</body>
+</html>
